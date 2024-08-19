@@ -43,11 +43,11 @@ resource "aws_lb_target_group" "backend-tg" {
   vpc_id   = var.vpc_id
 
   health_check {
-    path                = "/healthy"
+    path                = "/api/healthy"
     healthy_threshold   = 2
     unhealthy_threshold = 10
-    timeout             = 5
-    interval            = 10
+    timeout             = 10
+    interval            = 20
     matcher             = "200-299"
   }
 

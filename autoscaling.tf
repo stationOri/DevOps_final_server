@@ -5,7 +5,7 @@ resource "aws_autoscaling_group" "ori_asg" {
   vpc_zone_identifier  = [aws_subnet.ori-subnet-public-01.id, aws_subnet.ori-subnet-public-02.id]
   target_group_arns    = [aws_lb_target_group.frontend-tg.arn, aws_lb_target_group.backend-tg.arn]
   health_check_type    = "ELB"
-  health_check_grace_period = 300
+  health_check_grace_period = 600
 
   launch_template {
     id      = aws_launch_template.ori_lt.id
@@ -19,11 +19,11 @@ resource "aws_autoscaling_group" "ori_asg" {
   }
 }
 
-# 시작 템플릿
+# Launch Template
 resource "aws_launch_template" "ori_lt" {
   name          = "ori-launch-template"
-  image_id      = "ami-0e432553babc1a8ca"
-  instance_type = "t2.medium"
+  image_id      = "ami-01a3bd8b1a447b0e1"
+  instance_type = "c5.xlarge"
   key_name      = "ori"
 
   network_interfaces {
@@ -47,4 +47,20 @@ resource "aws_launch_template" "ori_lt" {
       Name = "ori-autoscaling-instance"
     }
   }
+}
+
+resource "aws_autoscaling_policy" "scale_up" {
+  name                   = "scale-up"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 600
+  autoscaling_group_name = aws_autoscaling_group.ori_asg.name
+}
+
+resource "aws_autoscaling_policy" "scale_down" {
+  name                   = "scale-down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 600
+  autoscaling_group_name = aws_autoscaling_group.ori_asg.name
 }
